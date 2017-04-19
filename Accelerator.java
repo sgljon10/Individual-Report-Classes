@@ -27,16 +27,27 @@ class Accelerator
     static double [] finalY = new double [number_of_muons];
     static double [] finaltime = new double [number_of_muons];
     static double [][] electron_X = new double [number_of_muons] [nmax];
-    static double [][] electron_Y = new double [number_of_muons] [nmax];    
-     
+    static double [][] electron_Y = new double [number_of_muons] [nmax]; 
+    
     private static void WriteToCircle() throws IOException {
         FileWriter file = new FileWriter("circle.csv");  
         PrintWriter outputFile = new PrintWriter("circle.csv");         
+        for (int n = 0; n < 1000; n++) {             
+        outputFile.println((n+1) + "," + radius*Math.cos(2*n*Math.PI/999) + "," + radius*Math.sin(2*n*Math.PI/999));
+        }    
+       outputFile.close();
+       screen.println("Data written to disk in file " + "circle.csv");
+       return;
+    }
+    
+    private static void WriteToDecay() throws IOException {
+        FileWriter file = new FileWriter("decay.csv");  
+        PrintWriter outputFile = new PrintWriter("decay.csv");         
         for (int n = 0; n < number_of_muons; n++) {             
         outputFile.println((n+1) + "," + finalX [n] + "," + finalY [n] + "," + finaltime [n]);
         }    
        outputFile.close();
-       screen.println("Data written to disk in file " + "circle.csv");
+       screen.println("Data written to disk in file " + "decay.csv");
        return;
     }
         
@@ -56,17 +67,15 @@ class Accelerator
       public static void main (String [] args) throws IOException
     {
     for (int i =0; i < number_of_muons; i++) {         
-        double lifetime = -mean_lifetime*Math.log(randGen.nextDouble());    
-        screen.println("lifetime of muon " + (i+1) + " is " + lifetime);
+        double lifetime = -mean_lifetime*Math.log(randGen.nextDouble());  
         double distance_travelled = speed*lifetime;    
         double loops = distance_travelled/circumference;
-        screen.println("The amounts of loops it did is " + loops);
+        screen.println("The amounts of loops muon " + (i+1) + " did is " + loops);
         finalX [i] = radius*Math.cos(distance_travelled/radius);
         finalY [i] = radius*Math.sin(distance_travelled/radius);
         finaltime [i] = lifetime;
-        double electron_energy = muon_energy * ((randGen.nextDouble()/10) + 0.8); //for now, this will be chnaged
-        double electron_momentum = Math.sqrt(Math.pow(electron_energy,2) - Math.pow(electron_mass,2));
-        double electron_lorentz = electron_energy/electron_mass;
+        double electron_energy = muon_energy *0.7; //for now, this will be chnaged
+        double electron_momentum = Math.sqrt(Math.pow(electron_energy,2) - Math.pow(electron_mass,2));        
         double electron_path_radius = ((electron_momentum*electron_charge*1E6)/c)/(magnetic_field*electron_charge); //without use of lorentz as lorentz is very high
         double electron_radiusdifference = radius - electron_path_radius;
         double electron_pathcentre_x = electron_radiusdifference*Math.cos(distance_travelled/radius);
@@ -76,7 +85,8 @@ class Accelerator
             electron_Y [i][n] = electron_path_radius*Math.sin((((double)n*360/(double)nmax)*Math.PI)/180) + electron_pathcentre_y;
         }
     }    
-    WriteToCircle(); 
+    WriteToDecay(); 
+    WriteToCircle();
     WriteToElectron();  
     }
     
